@@ -11,7 +11,7 @@ using CitiesManager.WebAPI.Models;
 namespace CitiesManager.WebAPI.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController] //ako ne stavimo [ApiController] onda moramo u sve PUT i POST staviti [FromBody]
     public class CitiesController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -22,28 +22,34 @@ namespace CitiesManager.WebAPI.Controllers
         }
 
         // GET: api/Cities
-        [HttpGet]
+        [HttpGet] //ne treba ako action method pocinje sa Get (GetCities())
         public async Task<ActionResult<IEnumerable<City>>> GetCities()
         {
           if (_context.Cities == null)
           {
               return NotFound();
           }
-            return await _context.Cities.ToListAsync();
+            var cities =  await _context.Cities.OrderBy(tepm => tepm.CityName).ToListAsync();
+            return cities;
         }
 
         // GET: api/Cities/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<City>> GetCity(Guid id)
+        [HttpGet("{cityId}")] // kombinovano donja dva
+        //[HttpGet]
+        //[Route("{cityId}")]
+        public async Task<ActionResult<City>> GetCity(Guid cityId)
         {
-          if (_context.Cities == null)
-          {
-              return NotFound();
-          }
-            var city = await _context.Cities.FindAsync(id);
+            //if (_context.Cities == null)
+            //{
+            //    return NotFound();
+            //} nece nikad biti null posto potice od ef
+            
+            //var city = await _context.Cities.FindAsync(cityId);
+            var city = await _context.Cities.FirstOrDefaultAsync(temp => temp.CityId == cityId);
 
             if (city == null)
             {
+                //Response.StatusCode = 404;
                 return NotFound();
             }
 
@@ -51,24 +57,30 @@ namespace CitiesManager.WebAPI.Controllers
         }
 
         // PUT: api/Cities/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCity(Guid id, City city)
+        [HttpPut("{cityId}")]
+        public async Task<IActionResult> PutCity(Guid cityId, [Bind(nameof(City.CityId), nameof(City.CityName))] City city)
         {
-            if (id != city.CityId)
+            if (cityId != city.CityId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(city).State = EntityState.Modified;
+            //_context.Entry(city).State = EntityState.Modified; - na ovaj nacin updetujemo sve elemente
+
+            var existingCity = await _context.Cities.FindAsync(cityId);
+            if (existingCity == null)
+            {
+                return NotFound(); //HTTP 404
+            }
+            existingCity.CityName = city.CityName;
 
             try
             {
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException) // ako je paraleno (u isto vrijeme) updetovan objekat od drugog usera
             {
-                if (!CityExists(id))
+                if (!CityExists(cityId))
                 {
                     return NotFound();
                 }
@@ -84,7 +96,7 @@ namespace CitiesManager.WebAPI.Controllers
         // POST: api/Cities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<City>> PostCity(City city)
+        public async Task<ActionResult<City>> PostCity([Bind(nameof(City.CityId), nameof(City.CityName))] City city)
         {
           if (_context.Cities == null)
           {
@@ -93,27 +105,27 @@ namespace CitiesManager.WebAPI.Controllers
             _context.Cities.Add(city);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCity", new { id = city.CityId }, city);
+            return CreatedAtAction("GetCity", new { cityId = city.CityId }, city); //api/cities/{cityId}
         }
 
         // DELETE: api/Cities/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCity(Guid id)
         {
-            if (_context.Cities == null)
-            {
-                return NotFound();
-            }
+            //if (_context.Cities == null)
+            //{
+            //    return NotFound(); 
+            //}
             var city = await _context.Cities.FindAsync(id);
             if (city == null)
             {
-                return NotFound();
+                return NotFound();//HTTP 404
             }
 
             _context.Cities.Remove(city);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return NoContent(); //HTTP 200
         }
 
         private bool CityExists(Guid id)
