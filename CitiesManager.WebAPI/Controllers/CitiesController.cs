@@ -12,7 +12,7 @@ namespace CitiesManager.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController] //ako ne stavimo [ApiController] onda moramo u sve PUT i POST staviti [FromBody]
-    public class CitiesController : ControllerBase
+    public class CitiesController : CustomControllerBase
     {
         private readonly ApplicationDbContext _context;
 
@@ -37,6 +37,7 @@ namespace CitiesManager.WebAPI.Controllers
         [HttpGet("{cityId}")] // kombinovano donja dva
         //[HttpGet]
         //[Route("{cityId}")]
+        //public async Task<IActionResult> GetCity(Guid cityId)
         public async Task<ActionResult<City>> GetCity(Guid cityId)
         {
             //if (_context.Cities == null)
@@ -50,9 +51,12 @@ namespace CitiesManager.WebAPI.Controllers
             if (city == null)
             {
                 //Response.StatusCode = 404;
-                return NotFound();
+                //return NotFound();
+                //return BadRequest();
+                return Problem("Invalid CityId", statusCode: 400, title: "City Search");
             }
 
+            //return Ok(city); - ako koristimo IActionResult
             return city;
         }
 
@@ -98,6 +102,10 @@ namespace CitiesManager.WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<City>> PostCity([Bind(nameof(City.CityId), nameof(City.CityName))] City city)
         {
+            //if (ModelState.IsValid == false)
+            //{
+            //    return ValidationProblem(ModelState);
+            //} -> automatski se radi validacija preko controllera
           if (_context.Cities == null)
           {
               return Problem("Entity set 'ApplicationDbContext.Cities'  is null.");
