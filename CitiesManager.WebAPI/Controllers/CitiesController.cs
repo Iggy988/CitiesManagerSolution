@@ -22,7 +22,12 @@ namespace CitiesManager.WebAPI.Controllers
         }
 
         // GET: api/Cities
+        /// <summary>
+        /// To get list of cities (including city ID and city name) from 'cities' table
+        /// </summary>
+        /// <returns>Return city object</returns>
         [HttpGet] //ne treba ako action method pocinje sa Get (GetCities())
+        //[Produces("application/xml")] // da Content-type bude:application/xml
         public async Task<ActionResult<IEnumerable<City>>> GetCities()
         {
           if (_context.Cities == null)
@@ -33,6 +38,11 @@ namespace CitiesManager.WebAPI.Controllers
             return cities;
         }
 
+        /// <summary>
+        /// To get individual object of cities list (including city ID and city name) from 'cities' table
+        /// </summary>
+        /// <param name="cityId"></param>
+        /// <returns></returns>
         // GET: api/Cities/5
         [HttpGet("{cityId}")] // kombinovano donja dva
         //[HttpGet]
@@ -60,6 +70,12 @@ namespace CitiesManager.WebAPI.Controllers
             return city;
         }
 
+        /// <summary>
+        /// To edit individual object of cities list  from 'cities' table
+        /// </summary>
+        /// <param name="cityId"></param>
+        /// <param name="city"></param>
+        /// <returns></returns>
         // PUT: api/Cities/5
         [HttpPut("{cityId}")]
         public async Task<IActionResult> PutCity(Guid cityId, [Bind(nameof(City.CityId), nameof(City.CityName))] City city)
@@ -97,6 +113,11 @@ namespace CitiesManager.WebAPI.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        ///  To create object of cities in 'cities' table
+        /// </summary>
+        /// <param name="city"></param>
+        /// <returns></returns>
         // POST: api/Cities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
@@ -116,6 +137,11 @@ namespace CitiesManager.WebAPI.Controllers
             return CreatedAtAction("GetCity", new { cityId = city.CityId }, city); //api/cities/{cityId}
         }
 
+        /// <summary>
+        /// To delete individual object of cities in 'cities' table
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // DELETE: api/Cities/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCity(Guid id)
