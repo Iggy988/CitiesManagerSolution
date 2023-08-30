@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CitiesManager.WebAPI.DatabaseContext;
 using CitiesManager.WebAPI.Models;
+using Microsoft.AspNetCore.Cors;
 
 namespace CitiesManager.WebAPI.Controllers.v1;
 
 ////[ApiController] //ako ne stavimo [ApiController] onda moramo u sve PUT i POST staviti [FromBody]
-[ApiVersion("1.0")] 
+[ApiVersion("1.0")]
+//[EnableCors("4100Client")] //da bi omogucili custom cors policy za odredjeni controller
 public class CitiesController : CustomControllerBase
 {
     private readonly ApplicationDbContext _context;

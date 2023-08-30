@@ -50,7 +50,7 @@ builder.Services.AddVersionedApiExplorer(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-//Add CORS (cross-origin resource sharing)
+//Add CORS (cross-origin resource sharing) http://localhost:4200, http://localhost:4100
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policyBuilder =>
@@ -60,6 +60,14 @@ builder.Services.AddCors(options =>
         .WithOrigins(builder.Configuration.GetSection("AllowedOrigins").Get<string[]>())
         .WithHeaders("Authorization", "origin", "accept", "content-type")
         .WithMethods("GET", "POST", "PUT", "DELETE");
+    });
+    //custom policy
+    options.AddPolicy("4100Client",policyBuilder =>
+    {
+        policyBuilder
+        .WithOrigins(builder.Configuration.GetSection("AllowedOrigins2").Get<string[]>())
+        .WithHeaders("Authorization", "origin", "accept", "content-type")
+        .WithMethods("GET");
     });
 });
 
