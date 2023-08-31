@@ -17,7 +17,7 @@
             <param name="cityId"></param>
             <returns></returns>
         </member>
-        <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.PutCity(System.Guid,CitiesManager.WebAPI.Models.City)">
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.PutCity(System.Guid,CitiesManager.Core.Models.City)">
             <summary>
             To edit individual object of cities list  from 'cities' table
             </summary>
@@ -25,7 +25,7 @@
             <param name="city"></param>
             <returns></returns>
         </member>
-        <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.PostCity(CitiesManager.WebAPI.Models.City)">
+        <member name="M:CitiesManager.WebAPI.Controllers.v1.CitiesController.PostCity(CitiesManager.Core.Models.City)">
             <summary>
              To create object of cities in 'cities' table
             </summary>
@@ -44,30 +44,6 @@
             To get list of cities (only city name) from 'cities' table
             </summary>
             <returns>Return city object</returns>
-        </member>
-        <member name="T:CitiesManager.WebAPI.Migrations.Initial">
-            <inheritdoc />
-        </member>
-        <member name="M:CitiesManager.WebAPI.Migrations.Initial.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:CitiesManager.WebAPI.Migrations.Initial.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:CitiesManager.WebAPI.Migrations.Initial.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="T:CitiesManager.WebAPI.Migrations.CityName_required">
-            <inheritdoc />
-        </member>
-        <member name="M:CitiesManager.WebAPI.Migrations.CityName_required.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:CitiesManager.WebAPI.Migrations.CityName_required.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
-            <inheritdoc />
-        </member>
-        <member name="M:CitiesManager.WebAPI.Migrations.CityName_required.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
-            <inheritdoc />
         </member>
     </members>
 </doc>

@@ -5,16 +5,19 @@ import { FormControl, NgControl } from '@angular/forms';
   selector: '[disableControl]'
 })
 export class DisableControlDirective {
+
   constructor(private ngControl: NgControl) { }
 
   @Input() set disableControl(condition: boolean) {
     var control = this.ngControl.control as FormControl;
 
     if (control) {
-      if (condition)
+      if (condition) {
         control.disable();
-      else
+      }
+      else {
         control.enable();
+      }
     }
   }
 
