@@ -82,16 +82,18 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>( options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = false;
     options.Password.RequireDigit = true;
-}).AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders()
-.AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
-.AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
+})
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders()
+    .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
+    .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseHsts();
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseSwagger(); // creates endpoint for swagger.json
 app.UseSwaggerUI(options =>
