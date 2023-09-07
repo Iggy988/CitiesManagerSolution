@@ -1,4 +1,7 @@
+using CitiesManager.Core.Identity;
 using CitiesManager.Infrastructure.DatabaseContext;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +74,19 @@ builder.Services.AddCors(options =>
     });
 });
 
+//Identity
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>( options =>
+{
+    options.Password.RequiredLength = 5;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireDigit = true;
+}).AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders()
+.AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, Guid>>()
+.AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, Guid>>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -84,9 +100,11 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v2/swagger.json", "2.0");
 }); //creates swaggger UI for testing all Web API endpoints/action methods
 
-app.UseRateLimiter();
+app.UseRouting();
 
 app.UseCors();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
