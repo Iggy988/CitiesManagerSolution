@@ -88,6 +88,11 @@ public class AccountController : CustomControllerBase
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="loginDTO"></param>
+    /// <returns></returns>
     [HttpPost("login")]
     public async Task<ActionResult<ApplicationUser>> PostLogin(LoginDTO loginDTO)
     {
