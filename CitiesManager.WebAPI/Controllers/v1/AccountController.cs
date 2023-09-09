@@ -1,5 +1,6 @@
 ﻿using CitiesManager.Core.DTO;
 using CitiesManager.Core.Identity;
+using CitiesManager.Core.ServiceContracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -16,6 +17,7 @@ public class AccountController : CustomControllerBase
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly IJwtService _jwtService;
 
     /// <summary>
     /// 
@@ -23,11 +25,12 @@ public class AccountController : CustomControllerBase
     /// <param name="userManager"></param>
     /// <param name="signInManager"></param>
     /// <param name="roleManager"></param>
-    public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager)
+    public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IJwtService jwtService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
+        _jwtService = jwtService;
     }
 
     /// <summary>
@@ -61,7 +64,10 @@ public class AccountController : CustomControllerBase
             // sign-in
             await _signInManager.SignInAsync(user, isPersistent: false); //coockie ce se izbrisati kad se browser zatvori
 
-            return Ok(user);
+            //generate Jwt token
+            var authenticationResponse = _jwtService.CreateJwtToken(user);
+
+            return Ok(authenticationResponse);
         }
         else
         {
@@ -94,14 +100,15 @@ public class AccountController : CustomControllerBase
     /// <param name="loginDTO"></param>
     /// <returns></returns>
     [HttpPost("login")]
-    public async Task<ActionResult<ApplicationUser>> PostLogin(LoginDTO loginDTO)
+    public async Task<IActionResult> PostLogin(LoginDTO loginDTO)
     {
         //Validation
         if (ModelState.IsValid == false)
         {
-            string erorMessage = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-            return Problem(erorMessage);
+            string errorMessage = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+            return Problem(errorMessage);
         }
+
 
         var result = await _signInManager.PasswordSignInAsync(loginDTO.Email, loginDTO.Password, isPersistent: false, lockoutOnFailure: false);
 
@@ -114,7 +121,12 @@ public class AccountController : CustomControllerBase
                 return NoContent();
             }
 
-            return Ok(new { personName = user.PersonName, email = user.Email });
+            //sign-in
+            await _signInManager.SignInAsync(user, isPersistent: false);
+
+            var authenticationResponse = _jwtService.CreateJwtToken(user);
+
+            return Ok(authenticationResponse);
         }
 
         else
@@ -122,6 +134,7 @@ public class AccountController : CustomControllerBase
             return Problem("Invalid email or password");
         }
     }
+
 
 
     /// <summary>

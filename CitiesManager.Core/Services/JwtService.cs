@@ -23,53 +23,45 @@ public class JwtService : IJwtService
         _configuration = configuration;
     }
 
+    /// <summary>
+    /// Generates a JWT token using the given user's information and the configuration settings.
+    /// </summary>
+    /// <param name="user">ApplicationUser object</param>
+    /// <returns>AuthenticationResponse that includes token</returns>
     public AuthenticationResponse CreateJwtToken(ApplicationUser user)
     {
+        // Create a DateTime object representing the token expiration time by adding the number of minutes specified in the configuration to the current UTC time.
         DateTime expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:EXPIRATION_MINUTES"]));
 
-        /*
-         A claim is a statement about a subject by an issuer. 
-        Claims represent attributes of the subject that are useful in the context of authentication and authorization operations. 
-        Subjects and issuers are both entities that are part of an identity scenario. 
-        Some typical examples of a subject are: a user, an application or service, a device, or a computer. 
-        Some typical examples of an issuer are: the operating system, an application, a service,
-        a role provider, an identity provider, or a federation provider. An issuer delivers claims by issuing security tokens,
-        typically through a Security Token Service (STS). (In WIF, you can build an STS by deriving from the SecurityTokenService class.)
-        On occasion, the collection of claims received from an issuer can be extended by subject attributes stored directly at the resource.
-        A claim can be evaluated to determine access rights to data and other secured resources during the process
-        of authorization and can also be used to make or express authentication decisions about a subject. 
-         */
-
-       
+        // Create an array of Claim objects representing the user's claims, such as their ID, name, email, etc.
         Claim[] claims = new Claim[] {
-            // values that we put in payload
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), //Subject (user id)
-
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //JWT unique ID
-
-            new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()), //Issued at (date and time of token generation)
-
-            new Claim(ClaimTypes.NameIdentifier, user.Email), //Unique name identifier of the user (Email)
-
-            new Claim(ClaimTypes.Name, user.PersonName) //Name of the user
+             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), //Subject (user id)
+             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //JWT unique ID
+             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()), //Issued at (date and time of token generation)
+             new Claim(ClaimTypes.NameIdentifier, user.Email), //Unique name identifier of the user (Email)
+             new Claim(ClaimTypes.Name, user.PersonName) //Name of the user
         };
 
+        // Create a SymmetricSecurityKey object using the key specified in the configuration.
         SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        //Sha = securedHashingAlgoritm
+
+        // Create a SigningCredentials object with the security key and the HMACSHA256 algorithm.
         SigningCredentials signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-        //tokenGenerator -> create token based on data we input above
+
+        // Create a JwtSecurityToken object with the given issuer, audience, claims, expiration, and signing credentials.
         JwtSecurityToken tokenGenerator = new JwtSecurityToken(
-             _configuration["Jwt:Issuer"],
-             _configuration["Jwt:Audience"],
-             claims,
-             expires: expiration,
-             signingCredentials: signingCredentials
+        _configuration["Jwt:Issuer"],
+        _configuration["Jwt:Audience"],
+        claims,
+        expires: expiration,
+        signingCredentials: signingCredentials
         );
 
+        // Create a JwtSecurityTokenHandler object and use it to write the token as a string.
         JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
         string token = tokenHandler.WriteToken(tokenGenerator);
 
-
+        // Create and return an AuthenticationResponse object containing the token, user email, user name, and token expiration time.
         return new AuthenticationResponse() { Token = token, Email = user.Email, PersonName = user.PersonName, Expiration = expiration };
 
     }
