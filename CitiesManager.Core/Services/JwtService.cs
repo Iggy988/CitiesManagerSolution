@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,7 +63,24 @@ public class JwtService : IJwtService
         string token = tokenHandler.WriteToken(tokenGenerator);
 
         // Create and return an AuthenticationResponse object containing the token, user email, user name, and token expiration time.
-        return new AuthenticationResponse() { Token = token, Email = user.Email, PersonName = user.PersonName, Expiration = expiration };
+        return new AuthenticationResponse() 
+        { 
+            Token = token,
+            Email = user.Email,
+            PersonName = user.PersonName,
+            Expiration = expiration ,
+            RefreshToken = GenerateRefreshToken(),
+            RefreshTokenExpirationDateTime = DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["RefreshToken:EXPIRATION_MINUTES"])),
+        };
 
+    }
+
+    //Creates a refresh token (base 64 string of random numbers)
+    public string GenerateRefreshToken()
+    {
+        byte[] bytes = new byte[64];
+        var randomNumberGenerator = RandomNumberGenerator.Create();
+        randomNumberGenerator.GetBytes(bytes);
+        return Convert.ToBase64String(bytes);
     }
 }
